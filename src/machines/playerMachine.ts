@@ -1,61 +1,33 @@
 import { setup } from "xstate";
 
+type PlayerEvent = { type: "TOGGLE_FULL" } | { type: "TOGGLE_MINI" } | { type: "PLAY" } | { type: "PAUSE" };
+
+const playbackStates = {
+  play: { on: { PAUSE: "pause" } },
+  pause: { on: { PLAY: "play" } },
+};
+
 export const playerMachine = setup({
   types: {
     context: {} as {},
-    events: {} as { type: "toggle" } | { type: "PLAY" } | { type: "PAUSE" },
+    events: {} as PlayerEvent,
   },
 }).createMachine({
-  context: {},
   id: "player",
   initial: "mini",
   states: {
     mini: {
-      initial: "paused",
+      initial: "pause",
+      states: playbackStates,
       on: {
-        toggle: {
-          target: "full",
-        },
-      },
-      description: "collapsed player",
-      states: {
-        paused: {
-          on: {
-            PLAY: {
-              target: "playing",
-            },
-          },
-        },
-        playing: {
-          on: {
-            PAUSE: { target: "paused" },
-          },
-        },
+        TOGGLE_FULL: "full",
       },
     },
     full: {
-      initial: "paused",
+      initial: "pause",
+      states: playbackStates,
       on: {
-        toggle: {
-          target: "mini",
-        },
-      },
-      description: "full-screen player",
-      states: {
-        paused: {
-          on: {
-            toggle: {
-              target: "playing",
-            },
-          },
-        },
-        playing: {
-          on: {
-            toggle: {
-              target: "paused",
-            },
-          },
-        },
+        TOGGLE_MINI: "mini",
       },
     },
   },
